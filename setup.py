@@ -4,7 +4,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="GmonitorLib",
+    name="gmonitor-lib",
     version="1.0.0",
     include_package_data=True,
     python_requires='>=3.13',
