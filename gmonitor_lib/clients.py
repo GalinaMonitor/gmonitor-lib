@@ -95,7 +95,11 @@ class AWSClient:
             region_name="ru-1",
             aws_access_key_id=settings.aws_access_key_id,
             aws_secret_access_key=settings.aws_secret_access_key,
-            config=Config(s3={"addressing_style": "path"}),
+            config=Config(
+                s3={"addressing_style": "path"},
+                request_checksum_calculation="when_required",
+                response_checksum_validation="when_required",
+            ),
         )
         self.bucket_name = settings.aws_bucket_name
 
