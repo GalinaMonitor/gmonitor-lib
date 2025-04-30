@@ -99,8 +99,12 @@ class AWSClient:
         )
         self.bucket_name = settings.aws_bucket_name
 
-    def upload_file(self, file_io: io.BytesIO, filename: str) -> None:
+    def get_link(self, filename: str) -> str:
+        return f"{settings.aws_host}/{self.bucket_name}/{filename}"
+
+    def upload_file(self, file_io: io.BytesIO, filename: str) -> str:
         self.session.upload_fileobj(file_io, Bucket=self.bucket_name, Key=filename)
+        return self.get_link(filename)
 
     def download_file(self, filename: str) -> io.BytesIO:
         file_io = io.BytesIO()
