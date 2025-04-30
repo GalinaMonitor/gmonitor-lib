@@ -1,0 +1,30 @@
+Metadata-Version: 2.4
+Name: GmonitorLib
+Version: 1.0.0
+Summary: Common utils
+Author: Dmitry Seregin
+Author-email: dmitry.seregin.msk@gmail.com
+Classifier: Programming Language :: Python :: 3.13
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: setuptools==80.0.0
+Requires-Dist: twine==6.1.0
+Requires-Dist: wheel==0.45.1
+Requires-Dist: pydantic==2.11.3
+Requires-Dist: httpx==0.28.1
+Requires-Dist: boto3==1.38.4
+Requires-Dist: pydantic_settings==2.9.1
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Библиотека с общим функционалом
