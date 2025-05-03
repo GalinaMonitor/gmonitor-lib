@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 class HttpMethod(StrEnum):
+    """
+    Перечисление HTTP методов, используемых для выполнения запросов.
+    """
     GET = "get"
     POST = "post"
     PUT = "put"
@@ -22,6 +25,9 @@ class HttpMethod(StrEnum):
 
 
 class ExternalHttpRequestError(Exception):
+    """
+    Исключение, возникающее при ошибках во время выполнения HTTP запросов к внешним сервисам.
+    """
     pass
 
 
@@ -40,10 +46,20 @@ def convert_httpx_response_to_json(response: Response) -> Any:
 
 
 class BaseHttpxClient:
+    """
+    Базовый класс для HTTP клиентов, использующих библиотеку httpx.
+    Предоставляет функциональность для отправки HTTP запросов.
+    """
     def __init__(
         self,
         verify: bool = True,
     ):
+        """
+        Инициализация HTTP клиента.
+
+        Args:
+            verify: Флаг проверки SSL сертификатов при выполнении запросов.
+        """
         self._verify = verify
         self._base_url = ""
         self._auth: Auth | None = None
@@ -60,14 +76,23 @@ class BaseHttpxClient:
         **kwargs: Any,
     ) -> Any:
         """
-        Отправка запроса через httpx
+        Отправка HTTP запроса с использованием библиотеки httpx.
 
         Args:
-            url: Полный url
-            method: Метод запроса
-            data: Данные для post/put/patch запросов
-            parser: Парсер для обработки ответа httpx
-            **kwargs: Аргументы, передаваемые в httpx.request()
+            path: Путь к ресурсу, который будет добавлен к базовому URL.
+            method: HTTP метод запроса (GET, POST, PUT, PATCH, DELETE).
+            json: Данные в формате JSON для отправки в теле запроса.
+            params: Параметры запроса, которые будут добавлены к URL.
+            timeout: Таймаут запроса в секундах.
+            parser: Функция для обработки ответа от сервера.
+            retries: Количество повторных попыток при неудачном запросе.
+            **kwargs: Дополнительные аргументы, передаваемые в httpx.request().
+
+        Returns:
+            Результат обработки ответа функцией parser или объект Response, если parser=None.
+
+        Raises:
+            ExternalHttpRequestError: При возникновении ошибок во время выполнения запроса.
         """
         transport = AsyncHTTPTransport(retries=retries, verify=self._verify)
         async with AsyncClient(
@@ -88,7 +113,15 @@ class BaseHttpxClient:
 
 
 class AWSClient:
+    """
+    Клиент для работы с AWS S3 хранилищем.
+    Предоставляет методы для загрузки, скачивания и удаления файлов.
+    """
     def __init__(self):
+        """
+        Инициализация клиента AWS S3.
+        Создает сессию с использованием настроек из конфигурации.
+        """
         self.session = boto3.client(
             "s3",
             endpoint_url=settings.aws_host,
@@ -104,17 +137,51 @@ class AWSClient:
         self.bucket_name = settings.aws_bucket_name
 
     def get_link(self, filename: str) -> str:
+        """
+        Получение публичной ссылки на файл в хранилище.
+
+        Args:
+            filename: Имя файла в хранилище.
+
+        Returns:
+            Публичная ссылка на файл.
+        """
         return f"{settings.aws_host}/{self.bucket_name}/{filename}"
 
     def upload_file(self, file_io: io.BytesIO, filename: str) -> str:
+        """
+        Загрузка файла в хранилище S3.
+
+        Args:
+            file_io: Объект BytesIO с содержимым файла.
+            filename: Имя файла для сохранения в хранилище.
+
+        Returns:
+            Публичная ссылка на загруженный файл.
+        """
         self.session.upload_fileobj(file_io, Bucket=self.bucket_name, Key=filename)
         return self.get_link(filename)
 
     def download_file(self, filename: str) -> io.BytesIO:
+        """
+        Скачивание файла из хранилища S3.
+
+        Args:
+            filename: Имя файла в хранилище.
+
+        Returns:
+            Объект BytesIO с содержимым файла.
+        """
         file_io = io.BytesIO()
         self.session.download_fileobj(self.bucket_name, filename, file_io)
         file_io.seek(0)
         return file_io
 
     def delete_file(self, filename: str) -> None:
+        """
+        Удаление файла из хранилища S3.
+
+        Args:
+            filename: Имя файла в хранилище.
+        """
         self.session.delete_object(Bucket=self.bucket_name, Key=filename)
